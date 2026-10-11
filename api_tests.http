@@ -1,0 +1,85 @@
+@baseUrl = http://localhost:5000/api/v1
+# You can run these requests directly in VS Code by installing the "REST Client" extension (by Huachao Mao).
+# Once installed, a small "Send Request" button will appear above each block.
+
+### 1. Login to get token
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "asha@corp.com",
+    "password": "user123"
+}
+
+### Store the token from the response
+@token = {{login.response.body.data.token}}
+
+### 2. Get All Rooms
+GET {{baseUrl}}/rooms
+Authorization: Bearer {{token}}
+
+### 3. Book Meeting A (Valid)
+# @name bookMeetingA
+POST {{baseUrl}}/meetings
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Meeting A",
+    "roomId": 1,
+    "startTime": "2026-10-15 10:00:00",
+    "endTime": "2026-10-15 11:00:00",
+    "attendees": 4,
+    "participantIds": [3, 4]
+}
+
+### Store Meeting A ID
+@meetingA_id = {{bookMeetingA.response.body.data.meetingId}}
+
+### 4. Book Meeting B (Conflict - Expect 409 Error)
+POST {{baseUrl}}/meetings
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Meeting B (Overlap)",
+    "roomId": 1,
+    "startTime": "2026-10-15 10:30:00",
+    "endTime": "2026-10-15 11:30:00",
+    "attendees": 4,
+    "participantIds": []
+}
+
+### 5. Cancel Meeting A
+PATCH {{baseUrl}}/meetings/{{meetingA_id}}/cancel
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "reason": "Cancelled for testing"
+}
+
+### 6. Re-Book Meeting B (Now Valid because A was cancelled)
+POST {{baseUrl}}/meetings
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Meeting B (Overlap Resolved)",
+    "roomId": 1,
+    "startTime": "2026-10-15 10:30:00",
+    "endTime": "2026-10-15 11:30:00",
+    "attendees": 4,
+    "participantIds": []
+}
+
+### 7. Test RoomBot AI
+POST {{baseUrl}}/roombot/message
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "sessionId": "demo-chat-123",
+    "text": "Book a room tomorrow at 3pm for 5 people"
+}

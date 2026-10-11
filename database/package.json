@@ -1,0 +1,21 @@
+{
+  "name": "room-scheduler-database",
+  "version": "1.0.0",
+  "description": "Meeting Room Scheduler — Database setup, schema, seed data, and migration runner",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "migrate": "node src/migrate.js",
+    "seed": "node src/seed.js",
+    "setup": "node src/setup.js",
+    "reset": "node src/reset.js",
+    "verify": "node src/verify.js",
+    "start": "npm run setup"
+  },
+  "keywords": ["mysql", "database", "meeting-scheduler"],
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.11.0"
+  }
+}
